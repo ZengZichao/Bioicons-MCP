@@ -1,0 +1,10 @@
+# Bioicons MCP Server — runtime dependencies
+# Install with:  pip install -r requirements.txt
+
+mcp>=1.0.0,<3.0.0
+httpx>=0.25.0
+anyio>=4.0.0
+
+# SSE transport support (required for server.py imports)
+uvicorn>=0.24.0
+starlette>=0.27.0

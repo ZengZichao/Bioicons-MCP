@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "bioicons": {
+      "command": "python",
+      "args": ["-m", "bioicons_mcp"],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
