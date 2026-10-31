@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bioicons MCP Server — Model Context Protocol for bioicons.com</title>
+    <meta name="description" content="An MCP server for bioicons.com — a free library of 2800+ high quality science illustrations. Search, inspect, and download SVG icons via AI assistants.">
+    <meta name="author" content="Bioicons-MCP Contributors">
+    <meta name="keywords" content="MCP, bioicons, icons, science, illustrations, SVG, model-context-protocol, Claude, Cursor">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        /* ----------------------------------------------------------------- */
+        /*  Academic Minimalist Theme                                        */
+        /* ----------------------------------------------------------------- */
+        :root {
+            --primary: #1a3a5c;
+            --primary-light: #2c5784;
+            --primary-dark: #0d2137;
+            --accent: #2563a8;
+            --accent-soft: #e8f0f7;
+            --text: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --text-muted: #6b7280;
+            --bg: #ffffff;
+            --bg-soft: #fafbfc;
+            --bg-card: #f8f9fa;
+            --border: #e0e3e7;
+            --border-light: #eef0f3;
+            --code-bg: #f6f8fa;
+            --success: #1a7f37;
+            --warning: #9a6700;
+            --warning-bg: #fff8c5;
+            --radius: 6px;
+            --radius-sm: 4px;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-lg: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+            --max-width: 820px;
+            --font-serif: 'Lora', Georgia, 'Times New Roman', serif;
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: #7ab3e8;
+                --primary-light: #9cc8f0;
+                --primary-dark: #5a9adb;
+                --accent: #7ab3e8;
+                --accent-soft: #1a2a3a;
+                --text: #d1d5db;
+                --text-secondary: #b0b5bc;
+                --text-muted: #8b9099;
+                --bg: #0d1117;
+                --bg-soft: #161b22;
+                --bg-card: #1c2128;
+                --border: #30363d;
+                --border-light: #21262d;
+                --code-bg: #161b22;
+                --success: #3fb950;
+                --warning: #d29922;
+                --warning-bg: #2d2300;
+                --shadow: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+                --shadow-lg: 0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.3);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            font-size: 16px;
+            line-height: 1.75;
+            color: var(--text);
+            background: var(--bg);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ----------------------------------------------------------------- */
+        /*  Layout                                                           */
+        /* ----------------------------------------------------------------- */
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ----------------------------------------------------------------- */
+        /*  Header / Hero                                                     */
+        /* ----------------------------------------------------------------- */
+        header {
+            background: var(--bg-soft);
+            border-bottom: 1px solid var(--border);
+            padding: 48px 0 40px;
+        }
+
+        .badge-version {
+            display: inline-block;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--primary);
+            background: var(--accent-soft);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2px 10px;
+            margin-bottom: 16px;
+            letter-spacing: 0.02em;
+        }
+
+        .badge-unofficial {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--warning);
+            background: var(--warning-bg);
+            border: 1px solid rgba(154, 103, 0, 0.2);
+            border-radius: 12px;
+            padding: 2px 10px;
+            margin-bottom: 16px;
+            margin-left: 6px;
+        }
+
+        header h1 {
+            font-family: var(--font-serif);
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            line-height: 1.3;
+            margin-bottom: 12px;
+            letter-spacing: -0.01em;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            header h1 { color: var(--primary); }
+        }
+
+        header .tagline {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-width: 620px;
+        }
+
+        header .tagline a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        header .tagline a:hover {
+            border-bottom-color: var(--accent);
+        }
+
+        /* CTA buttons */
+        .cta-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 500;
+            padding: 8px 18px;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.01em;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-light);
+            border-color: var(--primary-light);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            border-color: var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: var(--accent-soft);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .btn-primary {
+                background: var(--accent);
+                color: var(--bg);
+                border-color: var(--accent);
+            }
+            .btn-primary:hover {
+                background: var(--primary-light);
+                border-color: var(--primary-light);
+            }
+            .btn-secondary {
+                color: var(--primary);
+                border-color: var(--border);
+            }
+        }
+
+        /* ----------------------------------------------------------------- */
+        /*  Navigation                                                       */
+        /* ----------------------------------------------------------------- */
+        nav.toc {
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        nav.toc .container {
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            scrollbar-width: none;
+        }
+
+        nav.toc .container::-webkit-scrollbar {
+            display: none;
+        }
+
+        nav.toc a {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 4px 12px;
+            border-radius: var(--radius-sm);
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        nav.toc a:hover {
+            color: var(--primary);
+            background: var(--accent-soft);
+        }
+
+        nav.toc a.active {
+            color: var(--primary);
+            background: var(--accent-soft);
+        }
+
+        /* ----------------------------------------------------------------- */
+        /*  Main Content                                                     */
+        /* ----------------------------------------------------------------- */
+        main {
+            padding: 40px 0 60px;
+        }
+
+        section {
+            margin-bottom: 48px;
+        }
+
+        section:last-child {
+            margin-bottom: 0;
+        }
+
+        h2 {
+            font-family: var(--font-serif);
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border);
+            letter-spacing: -0.01em;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            h2 { color: var(--primary); }
+        }
+
+        h3 {
+            font-family: var(--font-sans);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-top: 28px;
+            margin-bottom: 12px;
+        }
+
+        p {
+            margin-bottom: 14px;
+            color: var(--text-secondary);
+        }
+
+        p strong {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: text-decoration 0.2s;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        ul, ol {
+            margin-bottom: 14px;
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        li strong {
+            color: var(--text);
+        }
+
+        code {
+            font-family: var(--font-mono);
+            font-size: 0.875em;
+            background: var(--code-bg);
+            color: var(--text);
+            padding: 2px 6px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-light);
+        }
+
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 20px;
+            overflow-x: auto;
+            margin: 14px 0 20px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        pre code {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 13px;
+        }
+
+        /* ----------------------------------------------------------------- */
+        /*  Tables                                                           */
+        /* ----------------------------------------------------------------- */
+        .table-wrap {
+            overflow-x: auto;
+            margin: 14px 0 20px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th {
+            font-family: var(--font-sans);
+            font-weight: 600;
+            font-size: 13px;
+            text-align: left;
+            padding: 10px 16px;
+            background: var(--bg-soft);
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            vertical-align: top;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: var(--bg-soft);
+        }
+
+        /* ----------------------------------------------------------------- */
+        /*  Feature Cards                                                    */
+        /* ----------------------------------------------------------------- */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        @media (max-width: 600px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary-light);
+            box-shadow: var(--shadow);
+        }
+
+        .feature-card .feature-icon {
+            font-size: 18px;
+            margin-right: 6px;
+        }
+
+        .feature-card .feature-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .feature-card .feature-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
+        /* ----------------------------------------------------------------- */
+        /*  Callout / Blockquote                                             */
+        /* ----------------------------------------------------------------- */
+        .callout {
+            background: var(--accent-soft);
+            border-left: 3px solid var(--accent);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            padding: 12px 16px;
+            margin: 16px 0;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .callout strong {
+            color: var(--primary);
+        }
+
+        .callout-warning {
+            background: var(--warning-bg);
+            border-left-color: var(--warning);
+        }
+
+        .callout-warning strong {
+            color: var(--warning);
+        }
+
+        blockquote {
+            border-left: 3px solid var(--border);
+            padding-left: 16px;
+            margin: 14px 0;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* ----------------------------------------------------------------- */
+        /*  Architecture Diagram                                             */
+        /* ----------------------------------------------------------------- */
+        .arch-diagram {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin: 16px 0;
+            font-family: var(--font-mono);
+            font-size: 12.5px;
+            line-height: 1.65;
+            overflow-x: auto;
+            white-space: pre;
+            color: var(--text-secondary);
+        }
+
+        /* ----------------------------------------------------------------- */
+        /*  Tool Cards                                                       */
+        /* ----------------------------------------------------------------- */
+        .tool-card {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            margin-bottom: 16px;
+            background: var(--bg);
+            transition: box-shadow 0.2s;
+        }
+
+        .tool-card:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .tool-card .tool-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .tool-card .tool-number {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--bg);
+            background: var(--primary);
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            .tool-card .tool-number {
+                color: var(--bg);
+                background: var(--accent);
+            }
+        }
+
+        .tool-card .tool-name {
+            font-family: var(--font-mono);
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .tool-card .tool-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .tool-card .tool-params {
+            font-size: 13px;
+        }
+
+        .tool-card .tool-params table {
+            font-size: 13px;
+        }
+
+        .tool-card .tool-params th,
+        .tool-card .tool-params td {
+            padding: 6px 12px;
+        }
+
+        /* ----------------------------------------------------------------- */
+        /*  Footer                                                           */
+        /* ----------------------------------------------------------------- */
+        footer {
+            border-top: 1px solid var(--border);
+            background: var(--bg-soft);
+            padding: 28px 0;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        footer .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        footer a {
+            color: var(--text-muted);
+        }
+
+        footer a:hover {
+            color: var(--primary);
+        }
+
+        footer .footer-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        /* ----------------------------------------------------------------- */
+        /*  Scroll progress bar                                              */
+        /* ----------------------------------------------------------------- */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: var(--accent);
+            width: 0%;
+            z-index: 200;
+            transition: width 0.1s;
+        }
+
+        /* ----------------------------------------------------------------- */
+        /*  Misc                                                             */
+        /* ----------------------------------------------------------------- */
+        hr {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 32px 0;
+        }
+
+        .lang-switch {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .lang-switch a {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-muted);
+            padding: 4px 10px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+
+        .lang-switch a:hover,
+        .lang-switch a.active {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: var(--accent-soft);
+        }
+
+        .stat-row {
+            display: flex;
+            gap: 24px;
+            margin: 16px 0 4px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-item .stat-value {
+            font-family: var(--font-serif);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .stat-item .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- ================================================================= -->
+<!--  Header                                                            -->
+<!-- ================================================================= -->
+<header>
+    <div class="container">
+        <div>
+            <span class="badge-version">v0.1.0</span>
+            <span class="badge-unofficial">Third-Party / Unofficial</span>
+        </div>
+        <h1>Bioicons MCP Server</h1>
+        <p class="tagline">
+            A <a href="https://modelcontextprotocol.io/" target="_blank" rel="noopener">Model Context Protocol</a> server for
+            <a href="https://bioicons.com/" target="_blank" rel="noopener">bioicons.com</a> — a free library of
+            <strong>2800+ high quality science illustrations</strong>. Connect your AI assistant to search, inspect,
+            and download SVG icons for scientific figures.
+        </p>
+        <div class="stat-row">
+            <div class="stat-item">
+                <div class="stat-value">2,800+</div>
+                <div class="stat-label">Icons</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">37</div>
+                <div class="stat-label">Categories</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">5</div>
+                <div class="stat-label">MCP Tools</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">7</div>
+                <div class="stat-label">Licenses</div>
+            </div>
+        </div>
+        <div class="cta-row">
+            <a href="https://github.com/ZengZichao/Bioicons-MCP" target="_blank" rel="noopener" class="btn btn-primary">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                View on GitHub
+            </a>
+            <a href="https://github.com/ZengZichao/Bioicons-MCP/blob/main/README.md" target="_blank" rel="noopener" class="btn btn-secondary">
+                Documentation
+            </a>
+            <a href="https://github.com/ZengZichao/Bioicons-MCP/blob/main/README_CN.md" target="_blank" rel="noopener" class="btn btn-secondary">
+                中文文档
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- ================================================================= -->
+<!--  Table of Contents                                                 -->
+<!-- ================================================================= -->
+<nav class="toc">
+    <div class="container">
+        <a href="#overview">Overview</a>
+        <a href="#features">Features</a>
+        <a href="#quick-start">Quick Start</a>
+        <a href="#tools">Tools</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#clients">Client Config</a>
+        <a href="#licensing">Licensing</a>
+        <a href="#faq">FAQ</a>
+    </div>
+</nav>
+
+<!-- ================================================================= -->
+<!--  Main Content                                                      -->
+<!-- ================================================================= -->
+<main>
+<div class="container">
+
+<!-- Overview -->
+<section id="overview">
+    <h2>Overview</h2>
+    <p>
+        <strong>Bioicons MCP Server</strong> bridges <a href="https://bioicons.com/" target="_blank" rel="noopener">bioicons.com</a>
+        — a curated library of open-source SVG illustrations for the life sciences — and any AI client that supports
+        the <strong>Model Context Protocol (MCP)</strong>, such as <a href="https://claude.ai/download" target="_blank" rel="noopener">Claude Desktop</a>,
+        <a href="https://cursor.com" target="_blank" rel="noopener">Cursor</a>, or <a href="https://github.com/cline/cline" target="_blank" rel="noopener">Cline</a>.
+    </p>
+    <p>With this server, your AI assistant can:</p>
+    <ul>
+        <li><strong>Search</strong> the entire bioicons.com icon library (2800+ icons)</li>
+        <li><strong>Inspect</strong> icon metadata — name, category, license, author</li>
+        <li><strong>Download</strong> SVG files to your local filesystem</li>
+        <li><strong>Understand</strong> licensing and attribution requirements for each icon</li>
+    </ul>
+    <div class="callout">
+        <strong>What is bioicons.com?</strong><br>
+        Created by Simon Duerr, bioicons.com is an open platform providing high-quality vector illustrations for
+        scientific figures. All icons are available as SVG files under permissive licenses (CC0, CC BY, CC BY-SA,
+        MIT, BSD) and can be used in Inkscape, Adobe Illustrator, Microsoft Office, and more.
+    </div>
+    <div class="callout callout-warning">
+        <strong>Third-Party / Unofficial</strong><br>
+        This is an independent, community-developed MCP server and is <strong>not</strong> the official MCP server
+        for bioicons.com. This project is not affiliated with, endorsed by, or sponsored by bioicons.com or its creator.
+    </div>
+</section>
+
+<!-- Features -->
+<section id="features">
+    <h2>Features</h2>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <div><span class="feature-icon">🔍</span> <span class="feature-title">Full-text Search</span></div>
+            <div class="feature-desc">Search icons by keyword; multiple tokens are AND-matched</div>
+        </div>
+        <div class="feature-card">
+            <div><span class="feature-icon">📂</span> <span class="feature-title">Category Filtering</span></div>
+            <div class="feature-desc">Filter by 37 bio-science categories</div>
+        </div>
+        <div class="feature-card">
+            <div><span class="feature-icon">⚖️</span> <span class="feature-title">License Filtering</span></div>
+            <div class="feature-desc">Filter by CC0 / CC BY / CC BY-SA / MIT / BSD</div>
+        </div>
+        <div class="feature-card">
+            <div><span class="feature-icon">📥</span> <span class="feature-title">SVG Retrieval</span></div>
+            <div class="feature-desc">Fetch raw SVG source of any icon</div>
+        </div>
+        <div class="feature-card">
+            <div><span class="feature-icon">💾</span> <span class="feature-title">Local Download</span></div>
+            <div class="feature-desc">Save SVG files to a specified directory</div>
+        </div>
+        <div class="feature-card">
+            <div><span class="feature-icon">📋</span> <span class="feature-title">Rich Metadata</span></div>
+            <div class="feature-desc">Full icon info including license URL and attribution</div>
+        </div>
+        <div class="feature-card">
+            <div><span class="feature-icon">🌐</span> <span class="feature-title">Bilingual</span></div>
+            <div class="feature-desc">Category descriptions in English and Chinese</div>
+        </div>
+        <div class="feature-card">
+            <div><span class="feature-icon">⚡</span> <span class="feature-title">In-memory Cache</span></div>
+            <div class="feature-desc">Metadata cached for 1 hour to minimise requests</div>
+        </div>
+        <div class="feature-card">
+            <div><span class="feature-icon">📡</span> <span class="feature-title">stdio Transport</span></div>
+            <div class="feature-desc">For Claude Desktop, Cursor, and local clients</div>
+        </div>
+        <div class="feature-card">
+            <div><span class="feature-icon">🔗</span> <span class="feature-title">SSE Transport</span></div>
+            <div class="feature-desc">For remote / web-based clients</div>
+        </div>
+    </div>
+</section>
+
+<!-- Quick Start -->
+<section id="quick-start">
+    <h2>Quick Start</h2>
+    <h3>Prerequisites</h3>
+    <ul>
+        <li><strong>Python ≥ 3.10</strong></li>
+        <li>Network access to <code>https://bioicons.com</code></li>
+        <li>An MCP-compatible client (recommended: <a href="https://claude.ai/download" target="_blank" rel="noopener">Claude Desktop</a> or <a href="https://cursor.com" target="_blank" rel="noopener">Cursor</a>)</li>
+    </ul>
+
+    <h3>60-Second Setup</h3>
+    <pre><code><span style="color: var(--text-muted)"># 1. Enter the project directory</span>
+cd Bioicons-MCP
+
+<span style="color: var(--text-muted)"># 2. Create and activate a virtual environment</span>
+python -m venv .venv
+<span style="color: var(--text-muted)"># Windows</span>
+.venv\Scripts\activate
+<span style="color: var(--text-muted)"># macOS / Linux</span>
+source .venv/bin/activate
+
+<span style="color: var(--text-muted)"># 3. Install dependencies</span>
+pip install -r requirements.txt
+
+<span style="color: var(--text-muted)"># 4. Install the package (editable mode)</span>
+pip install -e .
+
+<span style="color: var(--text-muted)"># 5. Verify installation</span>
+bioicons-mcp --help</code></pre>
+
+    <p>Expected output:</p>
+    <pre><code>usage: bioicons-mcp [-h] [--transport {stdio,sse}] [--host HOST] [--port PORT]
+
+MCP server for bioicons.com — high quality science illustrations.</code></pre>
+</section>
+
+<!-- Tools -->
+<section id="tools">
+    <h2>Tools Reference</h2>
+    <p>The server exposes <strong>5 tools</strong> that AI clients can call automatically.</p>
+
+    <div class="tool-card">
+        <div class="tool-header">
+            <span class="tool-number">1</span>
+            <span class="tool-name">list_categories</span>
+        </div>
+        <div class="tool-desc">Lists every bioicons.com category with icon counts and descriptions.</div>
+        <div class="tool-params">
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>language</code></td><td><code>"en" / "zh"</code></td><td>No</td><td><code>"en"</code></td><td>Language for descriptions</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="tool-card">
+        <div class="tool-header">
+            <span class="tool-number">2</span>
+            <span class="tool-name">search_icons</span>
+        </div>
+        <div class="tool-desc">Search the icon library by keyword, with optional category and license filters.</div>
+        <div class="tool-params">
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>query</code></td><td><code>string</code></td><td>✅</td><td>—</td><td>Search keywords (space-separated, all must match)</td></tr>
+                        <tr><td><code>category</code></td><td><code>string</code></td><td>No</td><td><code>"All_icons"</code></td><td>Category filter</td></tr>
+                        <tr><td><code>license</code></td><td><code>string</code></td><td>No</td><td><code>""</code></td><td>License filter</td></tr>
+                        <tr><td><code>limit</code></td><td><code>integer</code></td><td>No</td><td><code>50</code></td><td>Max results (cap: 500)</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="tool-card">
+        <div class="tool-header">
+            <span class="tool-number">3</span>
+            <span class="tool-name">get_icon</span>
+        </div>
+        <div class="tool-desc">Fetch the raw SVG source of a specific icon.</div>
+        <div class="tool-params">
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>name</code></td><td><code>string</code></td><td>✅</td><td>Icon name (without <code>.svg</code>)</td></tr>
+                        <tr><td><code>category</code></td><td><code>string</code></td><td>No</td><td>Category slug for exact matching</td></tr>
+                        <tr><td><code>license</code></td><td><code>string</code></td><td>No</td><td>License slug for exact matching</td></tr>
+                        <tr><td><code>author</code></td><td><code>string</code></td><td>No</td><td>Author slug for exact matching</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="tool-card">
+        <div class="tool-header">
+            <span class="tool-number">4</span>
+            <span class="tool-name">download_icon</span>
+        </div>
+        <div class="tool-desc">Save an icon's SVG file to the local filesystem.</div>
+        <div class="tool-params">
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Default</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>name</code></td><td><code>string</code></td><td>✅</td><td>—</td><td>Icon name</td></tr>
+                        <tr><td><code>save_dir</code></td><td><code>string</code></td><td>No</td><td><code>"."</code></td><td>Save directory (auto-created)</td></tr>
+                        <tr><td><code>filename</code></td><td><code>string</code></td><td>No</td><td>icon name</td><td>Custom filename</td></tr>
+                        <tr><td><code>category</code></td><td><code>string</code></td><td>No</td><td><code>""</code></td><td>Category slug</td></tr>
+                        <tr><td><code>license</code></td><td><code>string</code></td><td>No</td><td><code>""</code></td><td>License slug</td></tr>
+                        <tr><td><code>author</code></td><td><code>string</code></td><td>No</td><td><code>""</code></td><td>Author slug</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="tool-card">
+        <div class="tool-header">
+            <span class="tool-number">5</span>
+            <span class="tool-name">get_icon_info</span>
+        </div>
+        <div class="tool-desc">Return detailed metadata for a specific icon, including license name, URL, and attribution requirements.</div>
+        <div class="tool-params">
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>name</code></td><td><code>string</code></td><td>✅</td><td>Icon name</td></tr>
+                        <tr><td><code>category</code></td><td><code>string</code></td><td>No</td><td>Category slug</td></tr>
+                        <tr><td><code>license</code></td><td><code>string</code></td><td>No</td><td>License slug</td></tr>
+                        <tr><td><code>author</code></td><td><code>string</code></td><td>No</td><td>Author slug</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <h3>Built-in Prompt: <code>find_science_icons</code></h3>
+    <p>
+        The server includes a reusable prompt template for finding science illustrations based on natural-language
+        descriptions. For example, asking <em>"Find me an icon of a DNA double helix"</em> will automatically invoke
+        <code>search_icons</code> and suggest the most relevant icons.
+    </p>
+</section>
+
+<!-- Architecture -->
+<section id="architecture">
+    <h2>Architecture</h2>
+    <div class="arch-diagram">┌─────────────────┐     MCP (stdio/SSE)     ┌──────────────────┐
+│  MCP Client      │ ◄───────────────────► │  bioicons-mcp     │
+│  (Claude, etc.)  │                         │  Server           │
+└─────────────────┘                         └────────┬──────────┘
+                                                     │
+                                                     │ Async HTTP
+                                                     ▼
+                                            ┌──────────────────┐
+                                            │  bioicons.com    │
+                                            │  (GitHub Pages)  │
+                                            │                  │
+                                            │  icons.json      │
+                                            │  categories.json │
+                                            │  authors.json    │
+                                            │  */icon.svg      │
+                                            └──────────────────┘</div>
+
+    <h3>Key Design Decisions</h3>
+    <ol>
+        <li><strong>BioiconsClient</strong> communicates with bioicons.com via <code>httpx.AsyncClient</code>, fetching JSON metadata in parallel and caching it for 1 hour.</li>
+        <li><strong>IconInfo</strong> is an immutable dataclass (<code>frozen=True, slots=True</code>) with a <code>matches_query</code> method that mirrors the bioicons.com website's search logic.</li>
+        <li><strong>constants.py</strong> centralises all static information for easy maintenance when the upstream site changes.</li>
+        <li><strong>SVG URL construction</strong> follows bioicons.com's deterministic path: <code>/icons/{license}/{category}/{author}/{name}.svg</code>.</li>
+    </ol>
+</section>
+
+<!-- Client Configuration -->
+<section id="clients">
+    <h2>Client Configuration</h2>
+
+    <h3>Claude Desktop</h3>
+    <p>Edit the Claude Desktop config file:</p>
+    <ul>
+        <li><strong>Windows</strong>: <code>%APPDATA%\Claude\claude_desktop_config.json</code></li>
+        <li><strong>macOS</strong>: <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></li>
+    </ul>
+    <pre><code>{
+  "mcpServers": {
+    "bioicons": {
+      "command": "python",
+      "args": ["-m", "bioicons_mcp"],
+      "env": {
+        "PYTHONIOENCODING": "utf-8"
+      }
+    }
+  }
+}</code></pre>
+    <div class="callout">
+        <strong>Tip:</strong> If you're using a virtual environment, replace <code>"python"</code> with the full path
+        to the Python executable, e.g. <code>"C:\\Bioicons-MCP\\.venv\\Scripts\\python.exe"</code>.
+    </div>
+
+    <h3>Cursor</h3>
+    <p>Navigate to <code>Settings → MCP</code> and add:</p>
+    <pre><code>{
+  "mcpServers": {
+    "bioicons": {
+      "command": "python",
+      "args": ["-m", "bioicons_mcp"]
+    }
+  }
+}</code></pre>
+
+    <h3>SSE Mode (Remote Deployment)</h3>
+    <pre><code>bioicons-mcp --transport sse --host 0.0.0.0 --port 8080</code></pre>
+    <p>Then configure your client with the SSE URL: <code>http://&lt;server-ip&gt;:8080/sse</code></p>
+</section>
+
+<!-- Licensing -->
+<section id="licensing">
+    <h2>Licensing</h2>
+    <h3>This MCP Server</h3>
+    <p>The server code is licensed under the <strong>MIT License</strong>.</p>
+
+    <h3>Icons on bioicons.com</h3>
+    <p>
+        Icons accessed through this server are hosted by bioicons.com and each has its own license.
+        <strong>Always check and respect the license of each icon you download.</strong>
+    </p>
+    <div class="table-wrap">
+        <table>
+            <thead><tr><th>License</th><th>Attribution Required</th><th>Notes</th></tr></thead>
+            <tbody>
+                <tr><td>CC0</td><td>No</td><td>Public domain, free to use</td></tr>
+                <tr><td>CC BY 3.0/4.0</td><td>Yes</td><td>Attribute the author</td></tr>
+                <tr><td>CC BY-SA 3.0/4.0</td><td>Yes</td><td>Attribute + share-alike</td></tr>
+                <tr><td>MIT</td><td>Yes</td><td>Retain copyright notice</td></tr>
+                <tr><td>BSD</td><td>Yes</td><td>Retain copyright notice</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <blockquote>
+        <strong>Attribution example:</strong> alanine icon by B--Gideon-Bergheim is licensed under CC0
+        (https://creativecommons.org/publicdomain/zero/1.0/)
+    </blockquote>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+    <h2>FAQ</h2>
+
+    <h3>Q1: I get <code>ModuleNotFoundError: No module named 'mcp'</code></h3>
+    <p>Install the dependencies: <code>pip install -r requirements.txt</code></p>
+
+    <h3>Q2: Search returns no results</h3>
+    <ul>
+        <li>Verify network access to <code>https://bioicons.com</code></li>
+        <li>The search is case-insensitive but requires all whitespace-separated tokens to appear in the icon name</li>
+        <li>Try broader keywords (e.g. "DNA" instead of "dna_replication_fork")</li>
+    </ul>
+
+    <h3>Q3: Tools don't appear in Claude Desktop</h3>
+    <ul>
+        <li>Restart Claude Desktop</li>
+        <li>Check the JSON syntax of your config file</li>
+        <li>Verify the Python path is correct (use an absolute path)</li>
+    </ul>
+
+    <h3>Q4: Can I use this offline?</h3>
+    <p>
+        bioicons.com is a static website and metadata must be fetched online. Offline mode is not currently supported,
+        but you could manually download <code>icons.json</code> and modify <code>client.py</code> to read from a local file.
+    </p>
+
+    <h3>Q5: Which Python versions are supported?</h3>
+    <p>Python 3.10 and above.</p>
+</section>
+
+</div>
+</main>
+
+<!-- ================================================================= -->
+<!--  Footer                                                            -->
+<!-- ================================================================= -->
+<footer>
+    <div class="container">
+        <div>
+            Licensed under <a href="https://github.com/ZengZichao/Bioicons-MCP/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a>
+            · This project is an independent, third-party community MCP adapter.
+        </div>
+        <div class="footer-links">
+            <a href="https://github.com/ZengZichao/Bioicons-MCP" target="_blank" rel="noopener">GitHub</a>
+            <a href="https://github.com/ZengZichao/Bioicons-MCP/blob/main/README.md" target="_blank" rel="noopener">Docs</a>
+            <a href="https://github.com/ZengZichao/Bioicons-MCP/blob/main/README_CN.md" target="_blank" rel="noopener">中文</a>
+            <a href="https://bioicons.com" target="_blank" rel="noopener">bioicons.com</a>
+            <a href="https://modelcontextprotocol.io/" target="_blank" rel="noopener">MCP</a>
+        </div>
+    </div>
+</footer>
+
+<!-- ================================================================= -->
+<!--  Scripts                                                           -->
+<!-- ================================================================= -->
+<script>
+    // Scroll progress bar
+    const scrollProgress = document.getElementById('scrollProgress');
+    window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollPercent = (scrollTop / docHeight) * 100;
+        scrollProgress.style.width = scrollPercent + '%';
+    });
+
+    // Active section highlight in TOC
+    const tocLinks = document.querySelectorAll('nav.toc a');
+    const sections = document.querySelectorAll('section[id]');
+
+    function highlightTOC() {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - 120;
+            if (window.scrollY >= sectionTop) {
+                current = section.getAttribute('id');
+            }
+        });
+        tocLinks.forEach(link => {
+            link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+        });
+    }
+    window.addEventListener('scroll', highlightTOC);
+    highlightTOC();
+</script>
+
+</body>
+</html>
